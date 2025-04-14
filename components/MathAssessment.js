@@ -17,6 +17,10 @@ import {
   ResponsiveContainer
 } from 'recharts';
 
+// Get API URLs from environment variables with fallbacks
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://web-production-9899.up.railway.app';
+const LEARNING_PATH_URL = process.env.NEXT_PUBLIC_LEARNING_PATH_URL || 'http://localhost:5173';
+
 const BackgroundRadarChart = ({ data }) => {
   if (!data || Object.keys(data).length === 0) {
     return null;
@@ -173,7 +177,7 @@ const MathAssessment = () => {
       // Convert the collected_data to a JSON string
       const diagnosticResultsJson = JSON.stringify(currentQuestion.collected_data);
       
-      const response = await fetch('https://web-production-9899.up.railway.app/create_learning_path', {
+      const response = await fetch(`${API_URL}/create_learning_path`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -209,7 +213,7 @@ const MathAssessment = () => {
   // Navigate to the config page
   const navigateToConfig = () => {
     if (configString) {
-      window.location.href = `http://localhost:5173/?config=${encodeURIComponent(configString)}`;
+      window.location.href = `${LEARNING_PATH_URL}/?config=${encodeURIComponent(configString)}`;
     }
   };
 
@@ -230,7 +234,7 @@ const MathAssessment = () => {
     };
 
     try {
-      const response = await fetch('https://web-production-9899.up.railway.app/chat', {
+      const response = await fetch(`${API_URL}/chat`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -278,7 +282,7 @@ const MathAssessment = () => {
     };
 
     try {
-      const response = await fetch('https://web-production-9899.up.railway.app/chat', {
+      const response = await fetch(`${API_URL}/chat`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
