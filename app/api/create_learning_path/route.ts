@@ -35,18 +35,21 @@ export async function POST(request: Request) {
     // Return the response from the backend
     const data = await response.json();
     return NextResponse.json(data);
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error in create_learning_path API route:', error);
     
-    if (error.name === 'AbortError') {
+    // Type guard for AbortError
+    if (error instanceof Error && error.name === 'AbortError') {
       return NextResponse.json(
         { error: 'Request timed out. The backend is taking too long to respond.' },
         { status: 504 }
       );
     }
     
+    // Handle general errors
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
     return NextResponse.json(
-      { error: `Failed to create learning path: ${error.message}` },
+      { error: `Failed to create learning path: ${errorMessage}` },
       { status: 500 }
     );
   }

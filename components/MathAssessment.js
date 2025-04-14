@@ -236,7 +236,7 @@ const MathAssessment = () => {
         clearTimeout(timeoutRef.current);
       }
     }
-  }, [currentQuestion, API_URL]);
+  }, [currentQuestion]);
 
   // Clean up on unmount
   useEffect(() => {
