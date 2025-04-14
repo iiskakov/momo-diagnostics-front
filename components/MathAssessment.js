@@ -1,7 +1,7 @@
 'use client'
 
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -158,25 +158,42 @@ const MathAssessment = () => {
   const [isGeneratingPath, setIsGeneratingPath] = useState(false);
   const [configString, setConfigString] = useState(null);
   const [pathError, setPathError] = useState(null);
+  const activeRequestRef = useRef(false);
+  const timeoutRef = useRef(null);
 
   const toggleRadarChart = () => {
     setIsRadarChartOpen(!isRadarChartOpen);
   };
 
-  // Function to create learning path
-  const createLearningPath = async () => {
+  // Function to create learning path - now with useCallback and proper request management
+  const createLearningPath = useCallback(async () => {
     if (!currentQuestion || !currentQuestion.collected_data) {
       setPathError('No assessment data available');
       return;
     }
 
+    // Prevent multiple simultaneous requests
+    if (activeRequestRef.current) {
+      console.log('Request already in progress, skipping new request');
+      return;
+    }
+
     setIsGeneratingPath(true);
     setPathError(null);
+    activeRequestRef.current = true;
 
     try {
       // Convert the collected_data to a JSON string
       const diagnosticResultsJson = JSON.stringify(currentQuestion.collected_data);
       
+      // Create an AbortController for timeout handling
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => {
+        controller.abort();
+      }, 120000); // 2-minute timeout - adjust as needed
+      
+      timeoutRef.current = timeoutId;
+
       const response = await fetch(`${API_URL}/create_learning_path`, {
         method: 'POST',
         headers: {
@@ -185,7 +202,10 @@ const MathAssessment = () => {
         body: JSON.stringify({
           diagnostic_results: diagnosticResultsJson
         }),
+        signal: controller.signal
       });
+
+      clearTimeout(timeoutId);
 
       if (!response.ok) {
         throw new Error(`Server responded with status: ${response.status}`);
@@ -204,25 +224,35 @@ const MathAssessment = () => {
       }
     } catch (error) {
       console.error('Error creating learning path:', error);
-      setPathError(`Failed to create learning path: ${error.message}`);
+      if (error.name === 'AbortError') {
+        setPathError('Request timed out. The server is taking too long to respond.');
+      } else {
+        setPathError(`Failed to create learning path: ${error.message}`);
+      }
     } finally {
       setIsGeneratingPath(false);
+      activeRequestRef.current = false;
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
     }
-  };
+  }, [currentQuestion, API_URL]);
 
-  // Navigate to the config page
-  const navigateToConfig = () => {
-    if (configString) {
-      window.location.href = `${LEARNING_PATH_URL}/?config=${encodeURIComponent(configString)}`;
-    }
-  };
+  // Clean up on unmount
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
 
   // Effect to automatically create learning path when assessment is complete
   useEffect(() => {
-    if (currentQuestion && currentQuestion.assessment_completion === 100) {
+    if (currentQuestion && currentQuestion.assessment_completion === 100 && !configString && !isGeneratingPath && !activeRequestRef.current) {
       createLearningPath();
     }
-  }, [currentQuestion, createLearningPath]);
+  }, [currentQuestion, createLearningPath, configString, isGeneratingPath]);
 
   const startAssessment = async () => {
     setLoading(true);
@@ -324,6 +354,13 @@ const MathAssessment = () => {
       setError('Failed to submit answer. Please try again.');
     }
     setLoading(false);
+  };
+
+  // Navigate to the config page
+  const navigateToConfig = () => {
+    if (configString) {
+      window.location.href = `${LEARNING_PATH_URL}/?config=${encodeURIComponent(configString)}`;
+    }
   };
 
   if (showWelcome) {
@@ -481,6 +518,7 @@ const MathAssessment = () => {
                   {isGeneratingPath ? (
                     <div className="text-center">
                       <p className="text-lg mb-4">Генерация персонализированного плана обучения...</p>
+                      <p className="text-sm text-gray-500 mb-4">Это может занять некоторое время (до 2 минут)</p>
                       <div className="flex justify-center">
                         <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#eea40b]"></div>
                       </div>
