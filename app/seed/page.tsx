@@ -2,6 +2,7 @@
 
 
 import React, { useState } from 'react';
+import Image from 'next/image';
 
 export default function Seed() {
   const [activeLogoType, setActiveLogoType] = useState('original');
@@ -56,16 +57,24 @@ export default function Seed() {
             No one grows ketchup like Heinz 
           </h1>
           {logos.map(logo => (
-            <img 
-              key={logo.type}
-              src={logo.src}
-              alt={`Heinz Logo ${logo.type}`}
-              height={60} 
+            <div 
+              key={logo.type} 
               style={{ 
                 marginTop: "10px",
-                display: logo.type === activeLogoType ? 'block' : 'none'
-              }} 
-            />
+                display: logo.type === activeLogoType ? 'block' : 'none',
+                position: "relative",
+                height: "60px",
+                width: "auto"
+              }}
+            >
+              <Image 
+                src={logo.src}
+                alt={`Heinz Logo ${logo.type}`}
+                width={120}
+                height={60}
+                style={{ height: "60px", width: "auto" }}
+              />
+            </div>
           ))}
           <button 
             onClick={handleLogoChange}

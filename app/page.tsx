@@ -1,4 +1,3 @@
-import Image from "next/image";
 import MathAssessment from '@/components/MathAssessment'
 
 export default function Home() {

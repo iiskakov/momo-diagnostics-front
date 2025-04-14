@@ -4,7 +4,6 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { 
@@ -219,7 +218,7 @@ const MathAssessment = () => {
     if (currentQuestion && currentQuestion.assessment_completion === 100) {
       createLearningPath();
     }
-  }, [currentQuestion?.assessment_completion]);
+  }, [currentQuestion, createLearningPath]);
 
   const startAssessment = async () => {
     setLoading(true);
