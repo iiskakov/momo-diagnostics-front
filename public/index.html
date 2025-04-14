@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Heinz Poster</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+        }
+        .poster-container {
+            display: flex;
+            justify-content: center;
+            align-items: start;
+            height: 100vh;
+            background-image: url('./poster/poster_background.jpg');
+            background-size: contain;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+        .content {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        h1 {
+            font-family: Helvetica;
+            color: white;
+            margin: 0;
+            max-width: 570px;
+            scale: 0.9;
+            padding-top: 50px;
+            background-clip: text; /* Apply the background to text only */
+            -webkit-background-clip: text; /* For webkit browsers */
+        }
+        #logo {
+            height: 150px;
+            position: absolute;
+            bottom: 10px;
+            right: 42.7vw;
+        }
+        button {
+            position: absolute;
+            bottom: 20px;
+            padding: 10px 20px;
+            background-color: grey;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #logo-button {
+            right: 130px;
+        }
+        #text-button {
+            right: 20px;
+        }
+        #font-button {
+            right: 210px;
+        }
+        #style-button {
+            right: 305px;
+        }
+    </style>
+</head>
+<body>
+    <div class="poster-container">
+        <div class="content">
+            <h1 id="title" style="font-size: 36px;">No one grows ketchup like Heinz</h1>
+            <img id="logo" src="./poster/logos/original.png" alt="Heinz Logo">
+            <br>
+            <button id="logo-button" onclick="changeLogo()">Лого</button>
+            <button id="text-button" onclick="changeText()">Копирайт</button>
+            <button id="font-button" onclick="changeFont()">Шрифт</button>
+            <button id="style-button" onclick="applyRandomStyle()">Дизайн</button>
+        </div>
+    </div>
+
+    <script>
+        const logos = [
+            'original.png', 
+            '1.png', 
+            '2.png', 
+            '3.png', 
+            '4.png', 
+            '5.png', 
+            '6.png',
+            '7.png'
+        ];
+        const texts = [
+            'No One Grows Tomatoes Like We Do—Perfectly Ripened, Expertly Crafted, and Always Turning Into the World\'s Favorite Ketchup.',
+            'No One Grows Tomatoes Like We Do—Carefully Cultivated, Sun-Ripened to Perfection, and Expertly Blended Into the Thick, Rich, and Irresistible Taste of the World’s Most Loved Ketchup.',
+            'From Farm to Table, No One Grows, Nurtures, and Perfects Tomatoes Like We Do—Sun-Ripened, Handpicked, and Masterfully Crafted Into the Thickest, Richest, Most Unbeatable Ketchup Loved by Millions Around the World.',
+            'No One Grows, Nurtures, or Perfects Tomatoes Like We Do—From the Sunlit Fields to Your Table, Each Tomato is Expertly Handpicked, Flawlessly Ripened, and Crafted Into the Thick, Velvety, Unmistakable Flavor of the World’s Favorite Ketchup, Loved by Generations Everywhere.',
+            'No One Grows, Cares For, or Perfects Tomatoes Like We Do—From Pristine Sunlit Fields to Masterful Crafting, Every Tomato is Handpicked, Naturally Ripened, and Carefully Blended Into the Thick, Rich, and Irresistible Ketchup That’s Been the Gold Standard of Flavor and Quality for Generations Worldwide.'
+        ];
+        const fonts = [
+            'Comic Sans MS', 
+            'Courier New', 
+            'Lucida Console', 
+            'Impact', 
+            'Papyrus', 
+            'Times New Roman', 
+            'Arial Black'
+        ];
+
+        const styles = [
+            { 
+                property: 'color', 
+                value: 'hsl(' + Math.random() * 360 + ', 100%, 50%)' 
+            },
+            { 
+                property: 'textShadow', 
+                value: '5px 5px 15px rgba(0, 0, 0, 0.5)' 
+            },
+            { 
+                property: 'letterSpacing', 
+                value: '5px' 
+            },
+            { 
+                property: 'transform', 
+                value: 'rotate(' + (Math.random() * 30 - 15) + 'deg)' 
+            },
+            { 
+                property: 'fontWeight', 
+                value: 'bold' 
+            },
+            { 
+                property: 'background', 
+                value: 'linear-gradient(45deg, #ff007f, #7f00ff)' 
+            }
+        ];
+
+        let currentLogoIndex = 0;
+        let currentTextIndex = 0;
+        let currentFontIndex = 0;
+        let currentFontSize = 36;
+
+        function changeLogo() {
+            currentLogoIndex = (currentLogoIndex + 1) % logos.length;
+            document.getElementById('logo').src = `./poster/logos/${logos[currentLogoIndex]}`;
+        }
+
+        function changeText() {
+            currentTextIndex = (currentTextIndex + 1) % texts.length;
+            const titleElement = document.getElementById('title');
+            titleElement.innerHTML = texts[currentTextIndex];
+            currentFontSize = Math.max(24, currentFontSize - 2); // Reduce font size, but keep a minimum of 24px
+            titleElement.style.fontSize = `${currentFontSize}px`;
+        }
+
+        function changeFont() {
+            currentFontIndex = (currentFontIndex + 1) % fonts.length;
+            const titleElement = document.getElementById('title');
+            titleElement.style.fontFamily = fonts[currentFontIndex];
+        }
+
+        function applyRandomStyle() {
+            const titleElement = document.getElementById('title');
+            const randomStyle = styles[Math.floor(Math.random() * styles.length)];
+            
+            // Apply only text-related styles
+            if (randomStyle.property === 'background') {
+                // Use background-clip: text to apply background only to the text
+                titleElement.style[randomStyle.property] = randomStyle.value;
+                titleElement.style.webkitBackgroundClip = 'text'; // For WebKit browsers
+                titleElement.style.color = 'transparent'; // Ensure text is transparent to show background gradient
+            } else {
+                titleElement.style[randomStyle.property] = randomStyle.value;
+            }
+        }
+    </script>
+</body>
+</html>
