@@ -18,7 +18,7 @@ import {
 } from 'recharts';
 
 // Get API URLs from environment variables with fallbacks
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://web-production-9899.up.railway.app';
+const API_URL = '/api'; // Now we call our local API routes
 const LEARNING_PATH_URL = process.env.NEXT_PUBLIC_LEARNING_PATH_URL || 'http://localhost:5173';
 
 const BackgroundRadarChart = ({ data }) => {
